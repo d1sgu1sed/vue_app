@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Note Manager</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+<div id="app" class="max-w-4xl mx-auto p-4">
+  <h1 class="text-3xl font-bold mb-6 text-center">Note Manager</h1>
+
+  <!-- Note Form -->
+  <form @submit.prevent="editingIndex === null ? addNote() : updateNote()" class="bg-white p-6 rounded-lg shadow-md mb-6">
+    <div class="mb-4">
+      <label for="noteTitle" class="block text-sm font-medium text-gray-700">Title</label>
+      <input type="text" id="noteTitle" v-model="newNote.title" required
+             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg p-3">
+    </div>
+
+    <div class="mb-4">
+      <label for="noteContent" class="block text-sm font-medium text-gray-700">Content</label>
+      <textarea id="noteContent" v-model="newNote.content" required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg p-3"></textarea>
+    </div>
+
+    <div class="mb-4">
+      <span class="block text-sm font-medium text-gray-700">Priority</span>
+      <div class="flex items-center space-x-4 mt-2">
+        <label class="flex items-center">
+          <input type="radio" v-model="newNote.priority" value="Low" class="text-indigo-600 focus:ring-indigo-500">
+          <span class="ml-2">Low</span>
+        </label>
+        <label class="flex items-center">
+          <input type="radio" v-model="newNote.priority" value="Medium" class="text-indigo-600 focus:ring-indigo-500">
+          <span class="ml-2">Medium</span>
+        </label>
+        <label class="flex items-center">
+          <input type="radio" v-model="newNote.priority" value="High" class="text-indigo-600 focus:ring-indigo-500">
+          <span class="ml-2">High</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label for="noteCategory" class="block text-sm font-medium text-gray-700">Category</label>
+      <select id="noteCategory" v-model="newNote.category" required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-lg p-3">
+        <option value="Personal">Personal</option>
+        <option value="Work">Work</option>
+        <option value="Others">Others</option>
+      </select>
+    </div>
+
+    <div class="mb-4 flex items-center">
+      <input type="checkbox" id="noteStatus" v-model="newNote.completed" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+      <label for="noteStatus" class="ml-2 text-sm font-medium text-gray-700">Completed</label>
+    </div>
+
+    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow hover:bg-indigo-700">
+      {{ editingIndex === null ? 'Add Note' : 'Update Note' }}
+    </button>
+  </form>
+
+  <!-- Notes List -->
+  <h2 class="text-2xl font-bold mb-4">Notes</h2>
+  <div v-if="notes.length === 0" class="text-center text-gray-500">No notes available</div>
+  <ul class="space-y-4">
+    <li v-for="(note, index) in notes" :key="index" class="bg-white p-4 rounded-lg shadow-md flex justify-between items-start">
+      <div>
+        <h3 class="text-lg font-bold">{{ note.title }}</h3>
+        <p class="text-gray-700">{{ note.content }}</p>
+        <p class="mt-2 text-sm text-gray-500"><strong>Priority:</strong> {{ note.priority }}</p>
+        <p class="text-sm text-gray-500"><strong>Category:</strong> {{ note.category }}</p>
+        <p class="text-sm text-gray-500"><strong>Status:</strong> {{ note.completed ? 'Completed' : 'Pending' }}</p>
+      </div>
+      <div class="flex space-x-2">
+        <button @click="editNote(index)" class="bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-600">Edit</button>
+        <button @click="removeNote(index)" class="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600">Delete</button>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<script>
+const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      notes: [],
+      newNote: {
+        title: '',
+        content: '',
+        priority: 'Low',
+        category: 'Personal',
+        completed: false
+      },
+      editingIndex: null
+    };
+  },
+  methods: {
+    addNote() {
+      this.notes.push({ ...this.newNote });
+      this.resetForm();
+    },
+    editNote(index) {
+      this.newNote = { ...this.notes[index] };
+      this.editingIndex = index;
+    },
+    updateNote() {
+      this.notes.splice(this.editingIndex, 1, { ...this.newNote });
+      this.resetForm();
+    },
+    removeNote(index) {
+      this.notes.splice(index, 1);
+    },
+    resetForm() {
+      this.newNote = {
+        title: '',
+        content: '',
+        priority: 'Low',
+        category: 'Personal',
+        completed: false
+      };
+      this.editingIndex = null;
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
